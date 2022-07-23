@@ -2,7 +2,7 @@
 A fork of [Project-PM-Predict](https://github.com/NewJerseyStyle/Project-PM-Predict) but faster
 crawling with distributed workers.
 
-I plan to build it in server-client architecture with RESTful APIs.
+I plan to build server-client model (or more like a Publish–subscribe pattern?) with RESTful APIs.
 - Each worker will ask if server has any data is out dated. Worker will then crawl and analysis,
 return crawling timestamp and analysis result to server.
   - A heartbeat API and a update API will be implemented for worker to receive connection from
