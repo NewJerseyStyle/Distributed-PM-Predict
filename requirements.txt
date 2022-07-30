@@ -1,0 +1,9 @@
+tinydb
+asyncio
+pyppeteer
+pyppeteer_stealth
+nltk
+transformers
+numpy
+html2image
+ray
