@@ -7,6 +7,10 @@ from tinydb import TinyDB, Query
 from tqdm import tqdm
 import ray
 
+from model import nltk_sent
+from model import deep_sent
+from model import Engine
+
 ray.init()
 
 
@@ -173,35 +177,43 @@ def ask_google_tasks(pname, engine=Engine.NLTK):
         pc_db = db.table('pcs')
         at_db = db.table('articles')
         User = Query()
+        pairs = []
         tasks = []
         for pc in tqdm(pc_db):
             pc_name = pc['name']
             task = ask_google.remote(pname, pc_name, engine)
             tasks.append(task)
+            pairs.append((pname, pc_name))
         return_vals = ray.get(tasks)
         activeness_denominator = max([x for _, _, x in return_vals])
         ds_db = db.table('qips')
-        for supportiveness, activeness_numerator, _ in return_vals:
-            ds = {}
+        for (supportiveness, activeness_numerator, _), (pname, pc_name) in zip(return_vals, pairs):
+            ds = ds_db.search(User.q == pc_name)
+            if ds.len() == 0:
+                ds = {'q': pc_name, 'i': [], 'p': [], 's': []}
+            else:
+                ds = ds[0]
             activeness = 100 * activeness_numerator / activeness_denominator
             powerfulness = 50
             if pname in get_all_powers():
                 powerfulness = 70
-            # so whoh p-pc pair is this?? more work to be done
+            ds_db.upsert(ds, User.q == pc_name)
 
 
-def do_search():
+def do_search(engine=Engine.NLTK):
     print('[do_search] Start')
     db = TinyDB('db.json')
     mp_db = db.table('mps')
     for mp in tqdm(mp_db, desc='Googleing supporting MPs'):
-        asyncio.get_event_loop().run_until_complete(ask_google_tasks(mp['name']))
+        asyncio.get_event_loop().run_until_complete(
+            ask_google_tasks(mp['name'], engine=Engine.NLTK))
     for name in tqdm(get_all_powers(), desc='Googleing supporting powers'):
-        asyncio.get_event_loop().run_until_complete(ask_google_tasks(name))
+        asyncio.get_event_loop().run_until_complete(
+            ask_google_tasks(name, engine=Engine.NLTK))
     print('[do_search] End...')
 
 
-def main():
+def main(engine=Engine.NLTK):
     # crawl name list
     asyncio.get_event_loop().run_until_complete(download_all_mps())
     asyncio.get_event_loop().run_until_complete(download_all_candidates())
@@ -212,5 +224,5 @@ def main():
         User = Query()
         if not pc_db.contains(User.name == name):
             pc_db.insert({'name': name})
-    # crawl data
-    do_search()
+    # crawl + analysis data
+    do_search(engine=Engine.NLTK)
