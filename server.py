@@ -3,7 +3,7 @@ from datetime import datetime
 
 from tinydb import TinyDB
 
-from crawler import run as download_data
+from worker import run as download_data
 from magi import run as top_five_predict
 from addon import run as draw_magi_ui
 from addon import post as tweet_n_ig
