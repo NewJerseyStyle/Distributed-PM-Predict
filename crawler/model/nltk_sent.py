@@ -3,7 +3,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 def sentiment_analysis(text_list):
     if len(text_list) == 0:
-        return 0
+        return 0, 0, 0
 
     nltk.download('vader_lexicon')
 

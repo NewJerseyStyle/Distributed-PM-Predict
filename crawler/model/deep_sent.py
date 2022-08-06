@@ -2,7 +2,7 @@ from transformers import pipeline
 
 def sentiment_analysis(data):
     if len(data) == 0:
-        return 0
+        return 0, 0, 0
 
     positive = 0
     negative = 0
