@@ -7,8 +7,9 @@ DIR /b ray.exe /s 2> nul > %temp%\raypathfindtmp
 SET /p exe_path=<%temp%\raypathfindtmp
 DEL %temp%\raypathfindtmp
 SET init_script=%exe_path:ray.exe=activate.bat% 
+SET python_path=%exe_path:Scripts\ray.exe=python.exe% 
 CALL %init_script%
-%exe_path% start --num-cpus 1 --address=%1:6379
+%python_path% %exe_path% start --num-cpus 1 --address=%1:6379
 :LOOP
 ECHO.
 ECHO.
@@ -20,7 +21,7 @@ ECHO "stop" : to disconnect from server and quit the program
 ECHO "status" : to list tasks and resources connect to server
 SET /P PARAM="> "
 IF /I [%PARAM%] == [stop] GOTO DONE
-IF /I [%PARAM%] == [status] %exe_path% status
+IF /I [%PARAM%] == [status] %python_path% %exe_path% status
 GOTO LOOP
 :CHECKIP
 SETLOCAL
@@ -44,5 +45,5 @@ ECHO optional arguments:
 ECHO  -h, --help  show this help message and exit
 EXIT /B 1
 :DONE
-%exe_path% stop
+%python_path% %exe_path% stop
 EXIT /B 1
