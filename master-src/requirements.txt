@@ -6,4 +6,4 @@ nltk
 transformers
 numpy
 html2image
-ray
+ray==1.13.0
