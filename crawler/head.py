@@ -119,7 +119,7 @@ def get_all_powers():
 
 @ray.remote
 class AsyncActor:
-    async def ask(self, pname, pc_name, engine):
+    async def ask_google(self, pname, pc_name, engine):
         browser = await launch(headless=True,
                                args=["--disable-gpu",
                                      "--no-sandbox",
