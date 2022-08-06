@@ -7,9 +7,9 @@ from tinydb import TinyDB, Query
 from tqdm import tqdm
 import ray
 
-from model import nltk_sent
-from model import deep_sent
-from model import Engine
+from .model import nltk_sent
+from .model import deep_sent
+from .model import Engine
 
 ray.init('auto')
 
