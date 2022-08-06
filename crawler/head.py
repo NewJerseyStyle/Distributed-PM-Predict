@@ -11,7 +11,7 @@ from model import nltk_sent
 from model import deep_sent
 from model import Engine
 
-ray.init()
+ray.init('auto')
 
 
 async def download_all_mps():

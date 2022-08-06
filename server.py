@@ -15,12 +15,8 @@ def main(args):
 
     flag = True
     while flag:
-        download_data()
-
-        if args.engine.upper() == 'NLTK':
-            analysis_data(Engine.NLTK)
-        elif args.engine.upper() == 'HUGGINGFACE':
-            analysis_data(Engine.HUGGINGFACE)
+        if args.engine.upper() == 'NLTK' or args.engine.upper() == 'HUGGINGFACE':
+            download_data(args.engine.upper())
         else:
             raise NotImplementedError
 
