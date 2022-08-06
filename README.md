@@ -2,15 +2,26 @@
 A fork of [Project-PM-Predict](https://github.com/NewJerseyStyle/Project-PM-Predict) but faster
 crawling with distributed workers.
 
-I plan to build server-client model (or more like a Publish–subscribe pattern?) with RESTful APIs.
-- Each worker will ask if server has any data is out dated. Worker will then crawl and analysis,
-return crawling timestamp and analysis result to server.
-  - A heartbeat API and a update API will be implemented for worker to receive connection from
-  server.
-  - A Graphic in CLI will be implemented to display the crawling tasks and its progress, also
-  the latest conclusion update from server.
-- Server will manage the database of data index and timestamp, worker list and their duties.
-  - A task list API will be implemented for server to announce tasks needs to be finished.
-  - A update API will be implemented for server to receive analysis result from workers.
-  - A Graphic in CLI will be implemented to display the worker list and the current conclusion.
-  - The server shall start a worker process on the machine.
+Some problem when setting up the server, troubleshoot with: 
+[Troubleshoot on Linux server/Docker](https://github.com/NewJerseyStyle/Project-PM-Predict#troubleshoot)
+
+In case cannot identify the problem, turn on debug mode of Pyppeteer with
+[rederence](https://github.com/miyakogi/pyppeteer/issues/122)
+```bash
+pip install -U git+https://github.com/pyppeteer/pyppeteer@dev
+```
+> :warning: The link in `reference` is incorrect.
+[The link to latest repository](https://stackoverflow.com/questions/69257248/module-websockets-has-no-attribute-client)
+
+```py3
+import logging
+logging.getLogger('pyppeteer').setLevel(logging.DEBUG)
+```
+
+The system now split into two parts:
+1. A Ray remote function for workers download data and analysis data to produce supportness
+	The remote function will be executed by worker
+	(packed conda environment with a starting script)
+	distributed among volunteers contributing their computer to the project.
+2. A Python script serve as Ray server and collect analysis result of each workers to
+produce conclusion.
