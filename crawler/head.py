@@ -145,11 +145,11 @@ class AsyncActor:
                     at_db_list.append(article)
                 element = await page.querySelector('a#pnnext')
                 if element is None:
-                    tqdm.write(f'[ask_google] {pname} + {pc_name} no next page, break')
+                    print(f'[ask_google] {pname} + {pc_name} no next page, break')
                     break
                 await page.evaluate('(element) => element.click()', element)
             except Exception as e:
-                tqdm.write(f'[ask_google] Google page {i} with {pc_name} got {repr(e)}')
+                print(f'[ask_google] Google page {i} with {pc_name} got {repr(e)}')
             finally:
                 await asyncio.sleep(3)
         await page.close()
@@ -177,7 +177,7 @@ def ask_google_tasks(pname, engine=Engine.NLTK):
         pairs = []
         tasks = []
         actor = AsyncActor.remote()
-        for pc in tqdm(pc_db):
+        for pc in pc_db:
             pc_name = pc['name']
             task = actor.ask_google.remote(pname, pc_name, engine)
             tasks.append(task)
@@ -187,7 +187,7 @@ def ask_google_tasks(pname, engine=Engine.NLTK):
         ds_db = db.table('qips')
         for (supportiveness, activeness_numerator, _), (pname, pc_name) in zip(return_vals, pairs):
             ds = ds_db.search(User.q == pc_name)
-            if ds.len() == 0:
+            if len(ds) == 0:
                 ds = {'q': pc_name, 'i': [], 'p': [], 's': []}
             else:
                 ds = ds[0]
