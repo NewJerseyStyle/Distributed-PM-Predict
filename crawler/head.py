@@ -203,11 +203,9 @@ def do_search(engine=Engine.NLTK):
     db = TinyDB('db.json')
     mp_db = db.table('mps')
     for mp in tqdm(mp_db, desc='Googleing supporting MPs'):
-        asyncio.get_event_loop().run_until_complete(
-            ask_google_tasks(mp['name'], engine=Engine.NLTK))
+        ask_google_tasks(mp['name'], engine=Engine.NLTK)
     for name in tqdm(get_all_powers(), desc='Googleing supporting powers'):
-        asyncio.get_event_loop().run_until_complete(
-            ask_google_tasks(name, engine=Engine.NLTK))
+        ask_google_tasks(name, engine=Engine.NLTK)
     print('[do_search] End...')
 
 
