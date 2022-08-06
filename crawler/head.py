@@ -11,7 +11,8 @@ from .model import nltk_sent
 from .model import deep_sent
 from .model import Engine
 
-ray.init('auto')
+if __name__ == '__main__':
+    ray.init('auto')
 
 
 async def download_all_mps():
@@ -117,15 +118,15 @@ def get_all_powers():
 
 
 @ray.remote
-def ask_google(pname, pc_name, engine):
-    async def ask(pname, pc_name, engine):
+class AsyncActor:
+    async def ask(self, pname, pc_name, engine):
         browser = await launch(headless=True,
                                args=["--disable-gpu",
                                      "--no-sandbox",
-                                     "--disable-extensions",
-                                     "--disable-dev-shm-usage",
-                                     "--no-first-run",
-                                     "--single-process"])
+                                     "--disable-extensions"],
+                                handleSIGINT=False,
+                                handleSIGTERM=False,
+                                handleSIGHUP=False)
         at_db_list = []
         page = await browser.newPage()
         await stealth(page)
@@ -154,9 +155,8 @@ def ask_google(pname, pc_name, engine):
         await page.close()
         await asyncio.sleep(random.randint(14, 30))
         data = []
-        for article in at['texts']:
-            if at['pc'] in article or len(
-                [n for n in pc_name if n in at_db_list]):
+        for article in at_db_list:
+            if pc_name in article:
                 data.append(article)
         if engine == Engine.NLTK:
             supportiveness, _, _ = nltk_sent.sentiment_analysis(data)
@@ -164,9 +164,6 @@ def ask_google(pname, pc_name, engine):
             supportiveness, _, _ = deep_sent.sentiment_analysis(data)
         await browser.close()
         return supportiveness, len(data), len(at_db_list)
-    return asyncio.get_event_loop().run_until_complete(
-        asyncio.gather(
-            ask(pname, pc_name, engine)))
 
 
 def ask_google_tasks(pname, engine=Engine.NLTK):
@@ -179,9 +176,10 @@ def ask_google_tasks(pname, engine=Engine.NLTK):
         User = Query()
         pairs = []
         tasks = []
+        actor = AsyncActor.remote()
         for pc in tqdm(pc_db):
             pc_name = pc['name']
-            task = ask_google.remote(pname, pc_name, engine)
+            task = actor.ask_google.remote(pname, pc_name, engine)
             tasks.append(task)
             pairs.append((pname, pc_name))
         return_vals = ray.get(tasks)
