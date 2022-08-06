@@ -1,3 +1,4 @@
+import time
 import argparse
 from datetime import datetime
 
@@ -11,11 +12,15 @@ from addon import post as tweet_n_ig
 def main(args):
     with TinyDB('db.json') as db:
         config = db.table('config')
-        config.insert({'url': 'https://twitter.com/i/flow/login', 'user': args.tw, 'pass': args.tw_pw})
+        config.insert({'url': 'https://twitter.com/i/flow/login',
+                       'user': args.tw,
+                       'pass': args.tw_pw})
 
-    flag = True
-    while flag:
-        if args.engine.upper() == 'NLTK' or args.engine.upper() == 'HUGGINGFACE':
+    continue_flag = True
+    last_update_time = datetime.now()
+    while continue_flag:
+        if (args.engine.upper() == 'NLTK'
+            or args.engine.upper() == 'HUGGINGFACE'):
             download_data(args.engine.upper())
         else:
             raise NotImplementedError
@@ -30,16 +35,23 @@ def main(args):
 
         tweet_n_ig(f'{top5[0][0]}.png')
 
-        flag = args.loop
-        if datetime.now().date() < datetime.strptime('05/09/2022', '%d/%m/%Y').date():
-            flag = False
+        continue_flag = args.loop
+        if datetime.now().date() < datetime.strptime('05/09/2022',
+                                                     '%d/%m/%Y').date():
+            continue_flag = False
+
+        while (continue_flag
+                and abs(datetime.now() - last_update_time
+                        ) < datetime.timedelta(hours=20)):
+            time.sleep(3600)
 
     with TinyDB('db.json') as db:
         db.drop_table('config')
 
     
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='#MAGI_SYS challenge UK Politics')
+    parser = argparse.ArgumentParser(
+                        description='#MAGI_SYS challenge UK Politics')
     parser.add_argument('--engine', type=str,
                         default='NLTK', choices=['HUGGINGFACE', 'NLTK'],
                         help='Engine to be used in sentiment analysis')
