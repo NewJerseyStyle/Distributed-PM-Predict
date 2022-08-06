@@ -3,7 +3,20 @@ A fork of [Project-PM-Predict](https://github.com/NewJerseyStyle/Project-PM-Pred
 crawling with distributed workers.
 
 Some problem when setting up the server, troubleshoot with: 
-[Troubleshoot](https://github.com/NewJerseyStyle/Project-PM-Predict#troubleshoot)
+[Troubleshoot on Linux server/Docker](https://github.com/NewJerseyStyle/Project-PM-Predict#troubleshoot)
+
+In case cannot identify the problem, turn on debug mode of Pyppeteer with
+[rederence](https://github.com/miyakogi/pyppeteer/issues/122)
+```bash
+pip install -U git+https://github.com/pyppeteer/pyppeteer@dev
+```
+> :warning: The link in `reference` is incorrect.
+[The link to latest repository](https://stackoverflow.com/questions/69257248/module-websockets-has-no-attribute-client)
+
+```py3
+import logging
+logging.getLogger('pyppeteer').setLevel(logging.DEBUG)
+```
 
 The system now split into two parts:
 1. A Ray remote function for workers download data and analysis data to produce supportness
